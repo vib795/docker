@@ -49,4 +49,61 @@ CPU LIMITS:
 		docker run --cpu-quota (to limit it in general - even if it is availble this is a hard limit)
 -------------------------------------------------------------------------------------------------------
 
+NETWORKING:
+	SERVER DOCKER:
+			docker rum --rm -ti -p 45678:45678 (here we are making the inside port of the container available to the outside of the container) 
+			-p 45679:45679 --name echo-server ubuntu:14.04 bash
+
+			NETCAT utility: is a great network debuggin program for just moving bits from one place to another. It's super simple and a good way 
+					to show off networking without having to be bothered by doing anything else like starting a web server.
+			nc -lp (listen to port) 45678 | nc -lp 45679 => passes data from 45678 to 45679
+ 
+	SLAVE SERVER (this is on your computer's bash):
+			nc localhost 45678 (on first slave)
+			nc localhost 45679 (on second slave)
+								all these do is send data from 45678 from master to slave 1 to slave 2.
+
+	SLAVES ON CLOUD:
+			docker run --rm -ti ubuntu:14.04 bash
+				Then once the docker is running on the first slave on the cloud, run: nc.host.docker.internal 45678 to connect to the host computer				(master)
+				
+				Same thing on slave 2 and then type something and it will be passed to slave 2 from slave 1.
+
+
+	EXPOSING PORTS DYNAMICALLY (LET DOCKER CHOOSE THE OUSIDE PORT):
+			docker rum --rm -ti -p 45678 -p 45679:45679 --name echo-server ubuntu:14.04 bash
+			docker port echo-server <lists external ports chosen by docker>
+			ON SLAVE1:
+				nc.host.docker.internal <the out port from the previous command>
+			ON SLAVE2:
+				nc.host.docker.internal <the out port from the previous command>
+
+			USING UDP (less reliable way):
+				ON MASTER: docker rum --rm -ti -p 45678/udp --name echo-server ubuntu:14.04 bash
+					   nc -ulp (listen to UDP port) 45678
+				ON SLAVE1: docker port echo server (OP IS LIKE: 45678/udp -> 0.0.0.0.:32771)
+					   nc -u (for UDP) localhost 32771
+					   hello world
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+VIRTUAL NETWORK FEATUERS:
+	docker network ls <list all available networks>
+	
+	docker network create learning <create custom network>
+
+	docker run --rm -ti --net learning --name catserver ubuntu:20.04 bash
+
+	Then, once the docker is up:
+		docker ping catserver <connects to the server created above>
+
+E.G. (Now, let us create a network only for cats)
+	docker network create catsonly
+	Put cat machine on the cat server : docker network connect catsonly catserver
+..........
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+LEGACY LINKING:
+	
+
 
