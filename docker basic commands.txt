@@ -102,8 +102,35 @@ E.G. (Now, let us create a network only for cats)
 ..........
 
 ----------------------------------------------------------------------------------------------------------------------------------------
+IMAGES:
+	listing images (already downloaded): docker images
 
-LEGACY LINKING:
-	
+	images come from: docker pull
 
+	docker rmi <image-name>:<tag>
+	docker rmi <image-id>
+-------------------------------------------------------------------------------------
+VOLUMES (shared folders):
+	2 types:
+		1) persistent
+		2) ephemeral 
 
+docker run -ti -v /Users/utkar/example:/shared-folder ubuntu bash  (-v volume specification: her we are sharing data from the container to the host computer) 
+
+SHARING DATA B/W CONTAINERS:
+	docker run -ti -v /shared-data ubuntu bash
+	echo hello > /shared-data/data-file
+
+	ON SECOND CONTAINER:
+		docker run -ti --volumes-from <name of the above container> ubuntu bash
+--------------------------------------------------------------------------------------------
+
+DOCKER REGITRIES:
+	SEARCH COMMAND:
+		docker search <image_name>
+
+DOCKER LOGIN:
+	docker login
+	<provide username and password>
+
+	docker push <your_image> -> for the entire world to use
