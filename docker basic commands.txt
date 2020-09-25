@@ -1,0 +1,52 @@
+docker run -ti ubuntu:latest bash <means i am runniung the lastest Ubuntu image for which I need the bash terminal given to me for use, using the open -ti: terminal interactive>
+	   --rm <means delete the container when the container exits>
+
+
+docker ps <shows all running containers>
+
+docker ps -a (all containers)
+	  -l (last container)
+
+docker commit <commit a new image with your changes in the docekr>
+
+docker commit fc9c30126229 <this commits the canges in a docker, mentioned using the docker id. output is a docker image id e.g. (sha256:100b24aebdc0420fada04ab6ae917810b8414e0648ab4159be214bbd00c5f161) >
+
+docker tag 100b24aebdc0420fada04ab6ae917810b8414e0648ab4159be214bbd00c5f161 my-image <tags a created image to a name for easy use>.
+
+docker images - lists all the images
+
+WHAT WE SHOULD BE DOING IN DAY TO DAY LIFE:
+docker commit <docker_name> <the_new_image_name>
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+docker run -ti ubuntu bash -c "sleep 3; echo all done" - - - - - start a container and run a process in it.
+
+docker run -d (runs a container and leaves it running in the background) -ti ubuntu bash 
+Now to go in the container - we do docker attach <name of the container received from docker ps
+
+ctrl + p then ctrl + q ---------- detahces you from the container again.
+
+docker exec -ti <docker_name> bash (executes another process in the container)
+-----------------------------------------------------------------------------------------------------
+
+docker logs <container_name> - get docker logs
+
+E.G. : : : : : 
+		docker run --name (give a name) example -d (run in background) -c "lose /etc/password" -  wont work because lose isnt a command
+		CHECK LOGS:
+				docker logs example
+
+docker rm <container name> - removes container
+
+-----------------------------------------------------------------------------------------------------
+
+RESOURCE CONSTRAINTS:
+		docker run --memory <max allowed memory> <image_name> <commands>
+		
+CPU LIMITS:
+		docker run --cpu-shares (this works realtive to other containers)
+		docker run --cpu-quota (to limit it in general - even if it is availble this is a hard limit)
+-------------------------------------------------------------------------------------------------------
+
+
