@@ -1,0 +1,200 @@
+docker run -ti ubuntu:latest bash <means i am runniung the lastest Ubuntu image for which I need the bash terminal given to me for use, using the open -ti: terminal interactive>
+	   --rm <means delete the container when the container exits>
+
+
+docker ps <shows all running containers>
+
+docker ps -a (all containers)
+	  -l (last container)
+
+docker commit <commit a new image with your changes in the docekr>
+
+docker commit fc9c30126229 <this commits the canges in a docker, mentioned using the docker id. output is a docker image id e.g. (sha256:100b24aebdc0420fada04ab6ae917810b8414e0648ab4159be214bbd00c5f161) >
+
+docker tag 100b24aebdc0420fada04ab6ae917810b8414e0648ab4159be214bbd00c5f161 my-image <tags a created image to a name for easy use>.
+
+docker images - lists all the images
+
+WHAT WE SHOULD BE DOING IN DAY TO DAY LIFE:
+docker commit <docker_name> <the_new_image_name>
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+docker run -ti ubuntu bash -c "sleep 3; echo all done" - - - - - start a container and run a process in it.
+
+docker run -d (runs a container and leaves it running in the background) -ti ubuntu bash 
+Now to go in the container - we do docker attach <name of the container received from docker ps
+
+ctrl + p then ctrl + q ---------- detahces you from the container again.
+
+docker exec -ti <docker_name> bash (executes another process in the container)
+-----------------------------------------------------------------------------------------------------
+
+docker logs <container_name> - get docker logs
+
+E.G. : : : : : 
+		docker run --name (give a name) example -d (run in background) -c "lose /etc/password" -  wont work because lose isnt a command
+		CHECK LOGS:
+				docker logs example
+
+docker rm <container name> - removes container
+
+-----------------------------------------------------------------------------------------------------
+
+RESOURCE CONSTRAINTS:
+		docker run --memory <max allowed memory> <image_name> <commands>
+		
+CPU LIMITS:
+		docker run --cpu-shares (this works realtive to other containers)
+		docker run --cpu-quota (to limit it in general - even if it is availble this is a hard limit)
+-------------------------------------------------------------------------------------------------------
+
+NETWORKING:
+	SERVER DOCKER:
+			docker rum --rm -ti -p 45678:45678 (here we are making the inside port of the container available to the outside of the container) 
+			-p 45679:45679 --name echo-server ubuntu:14.04 bash
+
+			NETCAT utility: is a great network debuggin program for just moving bits from one place to another. It's super simple and a good way 
+					to show off networking without having to be bothered by doing anything else like starting a web server.
+			nc -lp (listen to port) 45678 | nc -lp 45679 => passes data from 45678 to 45679
+ 
+	SLAVE SERVER (this is on your computer's bash):
+			nc localhost 45678 (on first slave)
+			nc localhost 45679 (on second slave)
+								all these do is send data from 45678 from master to slave 1 to slave 2.
+
+	SLAVES ON CLOUD:
+			docker run --rm -ti ubuntu:14.04 bash
+				Then once the docker is running on the first slave on the cloud, run: nc.host.docker.internal 45678 to connect to the host computer				(master)
+				
+				Same thing on slave 2 and then type something and it will be passed to slave 2 from slave 1.
+
+
+	EXPOSING PORTS DYNAMICALLY (LET DOCKER CHOOSE THE OUSIDE PORT):
+			docker rum --rm -ti -p 45678 -p 45679:45679 --name echo-server ubuntu:14.04 bash
+			docker port echo-server <lists external ports chosen by docker>
+			ON SLAVE1:
+				nc.host.docker.internal <the out port from the previous command>
+			ON SLAVE2:
+				nc.host.docker.internal <the out port from the previous command>
+
+			USING UDP (less reliable way):
+				ON MASTER: docker rum --rm -ti -p 45678/udp --name echo-server ubuntu:14.04 bash
+					   nc -ulp (listen to UDP port) 45678
+				ON SLAVE1: docker port echo server (OP IS LIKE: 45678/udp -> 0.0.0.0.:32771)
+					   nc -u (for UDP) localhost 32771
+					   hello world
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+VIRTUAL NETWORK FEATUERS:
+	docker network ls <list all available networks>
+	
+	docker network create learning <create custom network>
+
+	docker run --rm -ti --net learning --name catserver ubuntu:20.04 bash
+
+	Then, once the docker is up:
+		docker ping catserver <connects to the server created above>
+
+E.G. (Now, let us create a network only for cats)
+	docker network create catsonly
+	Put cat machine on the cat server : docker network connect catsonly catserver
+..........
+
+----------------------------------------------------------------------------------------------------------------------------------------
+IMAGES:
+	listing images (already downloaded): docker images
+
+	images come from: docker pull
+
+	docker rmi <image-name>:<tag>
+	docker rmi <image-id>
+-------------------------------------------------------------------------------------
+VOLUMES (shared folders):
+	2 types:
+		1) persistent
+		2) ephemeral 
+
+docker run -ti -v /Users/utkar/example:/shared-folder ubuntu bash  (-v volume specification: her we are sharing data from the container to the host computer) 
+
+SHARING DATA B/W CONTAINERS:
+	docker run -ti -v /shared-data ubuntu bash
+	echo hello > /shared-data/data-file
+
+	ON SECOND CONTAINER:
+		docker run -ti --volumes-from <name of the above container> ubuntu bash
+--------------------------------------------------------------------------------------------
+
+DOCKER REGITRIES:
+	SEARCH COMMAND:
+		docker search <image_name>
+
+DOCKER LOGIN:
+	docker login
+	<provide username and password>
+
+	docker push <your_image> -> for the entire world to use
+
+--------------------------------------------------------------------------------------------
+
+WHAT IS A DOCKERFILE?
+	Program to create an image
+	You run this progrm with:
+		docker build -t <name-of-result> . (the . means to create the image in the current directory)
+
+Caching saves a lot of time. So, make changes in your docker file in the end so the downloads dont happen often and changes take 
+place on top of your changes. They are not shell scripts, although they look like it.
+
+BUILDING DOCKER FILES:
+	mkdir example
+	cd example
+	nano DOCKERFILE
+
+	<inside DockerFile>
+	FROM busybox
+	RUN echo "building simple docker image." <creates and starts the image>
+	CMD echo "hello container."
+
+	<exit>
+
+	docker -build -t hello .
+
+	RUN:
+		docker run --rm hello
+	
+	NEW e.g.:
+		FROM debian:sid
+		RUN apt-get update -y
+		RUN apt-get install nano 
+		CMD ["bin/nano", "/tmp/notes"]
+
+	e.g.2:
+		FROM example/nanoer
+		ADD notes.txt /notes.txt
+		CMD ["bin/nano", "/notes.txt"]
+
+
+	SYNTAX:
+		FROM something
+
+		MAINTAINER Fname Lname <email@example.com>
+
+		RUN hellodocker
+
+		ADD <something> <somewhere>
+
+		ENV - sets env variables and they will be set in the resulting image as well
+
+		ENTRYPOINT - specifies the start of the command to run 
+		and 
+		CMD -  specifies the whiole commaned to run
+
+		EXPOSE - maps ports in a container
+
+		VOLUME - defines volumnes (shared and ephemeral)
+
+		WORKDIR - sets directory the container starts in 
+
+		USER - sets which user the container will run as
+
+		...etc.
