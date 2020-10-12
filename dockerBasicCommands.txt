@@ -198,3 +198,15 @@ BUILDING DOCKER FILES:
 		USER - sets which user the container will run as
 
 		...etc.
+-------------------------------------------------------------------------------------------------------------------------------------
+Docker is a program that manages the kernel. Docker is three things:
+	1) It's a program written in Go (upcoming systems' language).
+	2) It manages kernel features.
+	3) And use these features to build the concept of containers. 
+		*) So, docker primarily uses 'cgroups' or control groups to group processes together and give them the idea of being contained within their own little 		world. That is what keeps containers from interfering with each other.
+		*) Uses "namespaces" - feature of linux kernel -- which allows it to spilt the networking stack so we get one set of addresses for one container and a different set for another.
+		*) Uses "copy-on-write" file systems to build images.- which basically means, here's an image, you cannot change it but you can run things on top of it.
+	Also, there is nothing new about this. People have been doing this for years. What Docker really did was, it took things that people were already doing and made it easy. Built a language around it for poeple and things to talk.
+	It made scripting ditributed systems easy. 
+
+DOCKER is divided in to two programs: a client and a server. These two programs communicate over a socket, either over a network or through a file.  
