@@ -1,3 +1,5 @@
+FROM THE COURSE: https://www.linkedin.com/learning/learning-docker-2/
+
 docker run -ti ubuntu:latest bash <means i am runniung the lastest Ubuntu image for which I need the bash terminal given to me for use, using the open -ti: terminal interactive>
 	   --rm <means delete the container when the container exits>
 
