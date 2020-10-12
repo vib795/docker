@@ -209,4 +209,7 @@ Docker is a program that manages the kernel. Docker is three things:
 	Also, there is nothing new about this. People have been doing this for years. What Docker really did was, it took things that people were already doing and made it easy. Built a language around it for poeple and things to talk.
 	It made scripting ditributed systems easy. 
 
-DOCKER is divided in to two programs: a client and a server. These two programs communicate over a socket, either over a network or through a file.  
+DOCKER is divided in to two programs: a client and a server. These two programs communicate over a socket, either over a network or through a file.
+Docker socket file can be found at: /var/run/docker.sock 
+e.g.: docker run -ti --rm -v /var/run/docker.sock:/var/run/docker.sock docker sh 
+What the above command does is that it mounts /var/run/docker.sock:/var/run/docker.sock in to the container at exactly the same path. Basically we have given the the docker client a hook to basically control its own server. Then we use the image named "docker" and run an interactive shell.
